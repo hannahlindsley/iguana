@@ -57,7 +57,7 @@ import java.util.Map;
 public class Iguana {
 	
 	public static ParseResult parse(Input input, GrammarGraph grammarGraph, Configuration config, Nonterminal nonterminal, Map<String, ?> map, boolean global) {
-        IEvaluatorContext ctx = GLLEvaluator.getEvaluatorContext(config, input);
+        IEvaluatorContext ctx = GLLEvaluator.getEvaluatorContext(input);
 
         ParserRuntime runtime = grammarGraph.getRuntime();
 

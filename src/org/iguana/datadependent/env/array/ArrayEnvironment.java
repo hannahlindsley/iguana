@@ -2,76 +2,53 @@ package org.iguana.datadependent.env.array;
 
 import java.util.Arrays;
 
+import com.google.common.math.IntMath;
 import org.iguana.datadependent.env.Environment;
 
 public class ArrayEnvironment implements Environment {
+
+    private final Object[] values;
+
+    /*
+     * As an environment is always associated with a specific grammar position,
+     * only values participate in structural equality
+     */
+	private final int hash;
 	
-	private final Object[] values;
-	private final int hashCode;
+	static public final ArrayEnvironment EMPTY = new ArrayEnvironment(null, 0);
 	
-	static public final ArrayEnvironment EMPTY = new ArrayEnvironment(new Object[0], 0);
-	
-	private ArrayEnvironment(Object[] values, int hashCode) {
-		this.values = values;
-		this.hashCode = hashCode;
+	private ArrayEnvironment(Object[] values, int hash) {
+        this.values = values;
+		this.hash = hash;
 	}
 
-	@Override
+    @Override
 	public boolean isEmpty() {
-		return values.length == 0;
+		return this == EMPTY;
 	}
 
-	@Override
-	public Environment pop() {
-		throw new RuntimeException("Unsupported with this type of environment!");
-	}
-
-	@Override
-	public Environment push() {
-		throw new RuntimeException("Unsupported with this type of environment!");
-	}
-
-	@Override
-	public Environment _declare(String name, Object value) {
-		throw new RuntimeException("Unsupported with this type of environment!");
-	}
-
-	@Override
-	public Environment declare(String[] names, Object[] values) {
-		throw new RuntimeException("Unsupported with this type of environment!");
-	}
-
-	@Override
-	public Environment store(String name, Object value) {
-		throw new RuntimeException("Unsupported with this type of environment!");
-	}
-
-	@Override
-	public Object lookup(String name) {
-		throw new RuntimeException("Unsupported with this type of environment!");
-	}
-	
 	@Override
 	public int hashCode() {
-		return hashCode;
+		return hash;
 	}
-	
+
+    /*
+     * As an environment is always associated with a specific grammar position,
+     * no fast check on length of values
+     */
 	@Override
 	public boolean equals(Object other) {
-		
-		if (this == other)
+
+        if (this == other)
 			return true;
 		
-		if (!(other instanceof ArrayEnvironment))
-			return false;
-		
-		if (this.hashCode() != other.hashCode())
+		if (!(other instanceof ArrayEnvironment)
+                || this.hash != other.hashCode())
 			return false;
 		
 		ArrayEnvironment that = (ArrayEnvironment) other;
-		
-		if (values.length != that.values.length)
-			return false;
+
+        assert values.length == that.values.length;
 		
 		for (int i = 0; i < values.length; i++)
 			if (!values[i].equals(that.values[i]))
@@ -86,60 +63,80 @@ public class ArrayEnvironment implements Environment {
 	}
 
 	@Override
-	public Environment _declare(Object value) {
-		int length = this.values.length;
-		Object[] values = new Object[length + 1];
-		
-		if (length != 0)
-			System.arraycopy(this.values, 0, values, 0, length);
-		
+	public Environment declare(Object value) {
+
+		int length = values == null ? 0 : values.length;
+
+        if (length == 0)
+            return new ArrayEnvironment(new Object[] { value }, 31 + (value == null ? 0 : value.hashCode()));
+
+        Object[] values = new Object[length + 1];
+        System.arraycopy(this.values, 0, values, 0, length);
 		values[length] = value;
-		
-		return new ArrayEnvironment(values, hashCode + 31 * value.hashCode());
+
+		return new ArrayEnvironment(values, 31 * hash + (value == null ? 0 : value.hashCode()));
 	}
 
 	@Override
-	public Environment declare(Object[] values) { // Assuming values.length != 0
-		int length = this.values.length;
-		Object[] vals = new Object[length + values.length];
-		
+	public Environment declare(Object... values) {
+        if (values.length == 0)
+            return this;
+
+		int length = this.values == null ? 0 : this.values.length;
+
+        Object[] vs = new Object[length + values.length];
+
 		if (length != 0)
-			System.arraycopy(this.values, 0, vals, 0, length);
-		
-		int hashCode = this.hashCode;
+			System.arraycopy(this.values, 0, vs, 0, length);
 		
 		int j = 0;
+        int hash = this.hash == 0 ? 1 : this.hash;
 		for (int i = length; i < length + values.length; i++) {
-			vals[i] = values[j];
-			hashCode = hashCode + 31 * values[j].hashCode();
+            Object value = values[j];
+			vs[i] = value;
+			hash = 31 * hash + (value == null ? 0 : value.hashCode());
 			j++;
 		}
 		
-		return new ArrayEnvironment(vals, hashCode);
+		return new ArrayEnvironment(vs, hash);
 	}
 
 	@Override
 	public Environment store(int i, Object value) {
-		Object[] values = new Object[this.values.length];
-		
-		int hashCode = 0;
-		for (int j = 0; j < values.length; j++) {
-			
-			if (i != j)
-				values[i] = this.values[i];
-			else
-				values[i] = value;
-			
-			if (values[i] != null)
-				hashCode = hashCode + values[i].hashCode();
-		}
-		
-		return new ArrayEnvironment(values, hashCode);
+
+        int length = values.length;
+
+        if (length == 1)
+            return new ArrayEnvironment(new Object[] { value }, 31 + (value == null ? 0 : value.hashCode()));
+
+        Object[] vs = new Object[length];
+        System.arraycopy(values, 0, vs, 0, length);
+
+        Object v = vs[i];
+        int hash = this.hash - ((v == null ? 0 : v.hashCode()) - (value == null ? 0 : value.hashCode())) * pow(length - i - 1);
+        vs[i] = value;
+
+		return new ArrayEnvironment(vs, hash);
 	}
 
 	@Override
 	public Object lookup(int i) {
 		return values[i];
 	}
+
+    private static int pow(int k) {
+        int b = 31;
+        int a = 1;
+
+        while (true) {
+            switch (k) {
+                case 0: return a;
+                case 1: return b * a;
+            }
+            a *= (k&1)==0 ? 1 : b;
+            b *= b;
+            k >>= 1;
+        }
+    }
 
 }

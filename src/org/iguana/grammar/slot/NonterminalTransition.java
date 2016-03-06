@@ -83,10 +83,11 @@ public class NonterminalTransition extends AbstractTransition {
 		} else {
 			
 			Environment env = runtime.getEmptyEnvironment();
-			
-			if (dest.getLabel() != null) {
-				env = env._declare(String.format(Expression.LeftExtent.format, dest.getLabel()), i);
-			}
+
+            // TODO: Environment: revisit
+//			if (dest.getLabel() != null) {
+//				env = env._declare(String.format(Expression.LeftExtent.format, dest.getLabel()), i);
+//			}
 			
 			runtime.setEnvironment(env);
 			
@@ -124,8 +125,9 @@ public class NonterminalTransition extends AbstractTransition {
 
         int i = node.getRightExtent();
 
+        // TODO: Environment: revisit
         if (dest.getLabel() != null) {
-			env = env._declare(String.format(Expression.LeftExtent.format, dest.getLabel()), i);
+//			env = env._declare(String.format(Expression.LeftExtent.format, dest.getLabel()), i);
 		}
 		
 		runtime.setEnvironment(env);

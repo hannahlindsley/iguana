@@ -29,29 +29,16 @@ package org.iguana.datadependent.env;
 
 import iguana.utils.input.Input;
 import org.iguana.datadependent.env.array.ArrayEvaluatorContext;
-import org.iguana.datadependent.env.persistent.PersistentEvaluatorContext;
-import org.iguana.datadependent.env.simple.SimpleEvaluatorContext;
 import org.iguana.util.Configuration;
 
 public class GLLEvaluator {
 	
 	public static IEvaluatorContext getDefaultEvaluatorContext(Input input) {
-		// return new PersistentEvaluatorContext(input);
-		// return new SimpleEvaluatorContext(input);
 		return new ArrayEvaluatorContext(input);
 	}
 	
-	public static IEvaluatorContext getEvaluatorContext(Configuration config, Input input) {
-		switch(config.getEnvImpl()) {
-			case ARRAY: 
-				return new ArrayEvaluatorContext(input);
-			case HASH_MAP: 
-				return new SimpleEvaluatorContext(input);
-			case TRIE: 
-				return new PersistentEvaluatorContext(input);
-			default:
-				throw new RuntimeException("Should not have happened!");
-		}
+	public static IEvaluatorContext getEvaluatorContext(Input input) {
+		return new ArrayEvaluatorContext(input);
 	}
 
 }

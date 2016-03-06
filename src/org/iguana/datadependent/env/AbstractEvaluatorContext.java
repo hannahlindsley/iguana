@@ -62,17 +62,20 @@ public abstract class AbstractEvaluatorContext implements IEvaluatorContext {
 
 	@Override
 	public void popEnvironment() {
-		env = env.pop();
+        // TODO: Environment: revisit
+//		env = env.pop();
 	}
 
 	@Override
 	public void pushEnvironment() {
-		env = env.push();
+        // TODO: Environment: revisit
+//		env = env.push();
 	}
 
 	@Override
 	public void declareVariable(String name, Object value) {
-		env = env._declare(name, value);
+        // TODO: Environment: revisit
+//		env = env._declare(name, value);
 	}
 
 	@Override
@@ -82,12 +85,15 @@ public abstract class AbstractEvaluatorContext implements IEvaluatorContext {
 
 	@Override
 	public void storeVariable(String name, Object value) {
-		env = env.store(name, value);
+        // TODO: Environment: revisit
+//		env = env.store(name, value);
 	}
 
 	@Override
 	public Object lookupVariable(String name) {
-		return env.lookup(name);
+        // TODO: Environment: revisit
+//		return env.lookup(name);
+        return null;
 	}
 	
 	@Override
@@ -125,7 +131,8 @@ public abstract class AbstractEvaluatorContext implements IEvaluatorContext {
 
 	@Override
 	public void declareVariable(Object value) {
-		env = env._declare(value);
+        // TODO: Environment: revisit
+//		env = env._declare(value);
 	}
 
 	@Override

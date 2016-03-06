@@ -29,29 +29,15 @@ package org.iguana.datadependent.env;
 
 
 public interface Environment {
+
+    boolean isEmpty();
+
+    Object lookup(int i);
 	
-	public boolean isEmpty();
+    Environment declare(Object value);
+
+    Environment declare(Object... values);
 	
-	public Environment pop();
-	
-	public Environment push();
-	
-	public Environment _declare(String name, Object value);
-	
-	public Environment declare(String[] names, Object[] values);
-	
-	public Environment store(String name, Object value);
-	
-	public Object lookup(String name);
-	
-	
-	
-	public Environment _declare(Object value);
-	
-	public Environment declare(Object[] values);
-	
-	public Environment store(int i, Object value);
-	
-	public Object lookup(int i);
+	Environment store(int i, Object value);
 
 }

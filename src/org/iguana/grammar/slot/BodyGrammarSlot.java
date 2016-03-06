@@ -202,34 +202,26 @@ public class BodyGrammarSlot extends AbstractGrammarSlot implements PackedNodeSl
 	}
 	
 	public Environment doBinding(NonPackedNode sppfNode, Environment env) {
-		
-		if (label != null) {
-			if (i1 != -1)
-				env = env._declare(sppfNode);
-			else
-				env = env._declare(label, sppfNode);
-		}
-		
-		if (variable != null && state == null) {
-			if (i2 != -1)
-				env = env._declare(((NonterminalNode) sppfNode).getValue());
-			else
-				env = env._declare(variable, ((NonterminalNode) sppfNode).getValue());
-		}
+
+        if (label != null)
+			env = env.declare(sppfNode);
+
+		if (variable != null && state == null)
+			env = env.declare(((NonterminalNode) sppfNode).getValue());
 
 		if (variable == null && state != null) { // TODO: support for the array-based environment implementation
 			if (state.size() == 1) {
 				String v = state.iterator().next();
-				if (!v.equals("_")) {
-					Object value = ((NonterminalNode) sppfNode).getValue();
-					env = env._declare(v, value);
-				}
+//				if (!v.equals("_")) {
+//					Object value = ((NonterminalNode) sppfNode).getValue();
+//					env = env._declare(v, value);
+//				}
 			} else {
 				List<?> values = (List<?>) ((NonterminalNode) sppfNode).getValue();
 				Iterator<?> it = values.iterator();
 				for (String v : state) {
-					if (!v.equals("_"))
-						env = env._declare(v, it.next());
+//					if (!v.equals("_"))
+//						env = env._declare(v, it.next());
 				}
 			}
 		}
@@ -237,12 +229,12 @@ public class BodyGrammarSlot extends AbstractGrammarSlot implements PackedNodeSl
 		if (variable != null && state != null) { // TODO: support for the array-based environment implementation
 			List<?> values = (List<?>) ((NonterminalNode) sppfNode).getValue();
 			Iterator<?> it = values.iterator();
-			
-			env = env._declare(variable, it.next());
-			
+
+//			env = env._declare(variable, it.next());
+
 			for (String v : state) {
-				if (!v.equals("_"))
-					env = env._declare(v, it.next());
+//				if (!v.equals("_"))
+//					env = env._declare(v, it.next());
 			}
 		}
 		
