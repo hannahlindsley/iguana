@@ -55,10 +55,6 @@ public class XMLConfigFileParser implements ConfigFileParser {
                 case "HashMapImpl":
                     builder.setHashmapImpl(Configuration.HashMapImpl.valueOf(node.getTextContent().toUpperCase()));
                     break;
-
-                case "EnvironmentImpl":
-                    builder.setEnvironmentImpl(Configuration.EnvironmentImpl.valueOf(node.getTextContent().toUpperCase()));
-                    break;
             }
         }
     }

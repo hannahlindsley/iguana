@@ -49,9 +49,7 @@ public class Configuration {
 	
 	private final HashMapImpl hashmapImpl;
 	
-	private final EnvironmentImpl envImpl;
-
-    private final LogLevel logLevel;
+	private final LogLevel logLevel;
 
     public static Configuration load() {
         Configuration configuration;
@@ -70,8 +68,7 @@ public class Configuration {
 		this.lookAheadCount = builder.lookaheadCount;
 		this.matcherType = builder.matcherType;
 		this.hashmapImpl = builder.hashmapImpl;
-		this.envImpl = builder.envImpl;
-        this.logLevel = builder.logLevel;
+		this.logLevel = builder.logLevel;
 	}
 		
 	public LookupImpl getGSSLookupImpl() {
@@ -90,11 +87,7 @@ public class Configuration {
 		return hashmapImpl;
 	}
 	
-	public EnvironmentImpl getEnvImpl() {
-		return envImpl;
-	}
-
-    public LogLevel getLogLevel() {
+	public LogLevel getLogLevel() {
         return logLevel;
     }
 
@@ -117,12 +110,6 @@ public class Configuration {
 		INT_OPEN_ADDRESSING
 	}
 	
-	public enum EnvironmentImpl {
-		ARRAY,
-		HASH_MAP,
-		TRIE
-	}
-		
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -143,8 +130,6 @@ public class Configuration {
 		private int lookaheadCount = DEFAULT_LOOKAHEAD;
         private LogLevel logLevel = LogLevel.NONE;
 		
-		private EnvironmentImpl envImpl = EnvironmentImpl.TRIE;
-				
 		public Configuration build() {
 			return new Configuration(this);
 		}
@@ -169,12 +154,7 @@ public class Configuration {
 			return this;
 		}
 		
-		public Builder setEnvironmentImpl(EnvironmentImpl impl) {
-			this.envImpl = impl;
-			return this;
-		}
-
-        public Builder setLogLevel(LogLevel logLevel) {
+		public Builder setLogLevel(LogLevel logLevel) {
             this.logLevel = logLevel;
             return this;
         }

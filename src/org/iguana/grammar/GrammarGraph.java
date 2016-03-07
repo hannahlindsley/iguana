@@ -77,7 +77,6 @@ import iguana.regex.RegularExpression;
 import iguana.regex.matcher.DFAMatcherFactory;
 import iguana.regex.matcher.MatcherFactory;
 import org.iguana.util.Configuration;
-import org.iguana.util.Configuration.EnvironmentImpl;
 import org.iguana.util.Configuration.HashMapImpl;
 import org.iguana.util.Configuration.LookupImpl;
 
@@ -149,15 +148,9 @@ public class GrammarGraph implements Serializable {
     }
 	
 	private GrammarGraph(Grammar grammar, Input input, Configuration config) {
-		if (config.getEnvImpl() == EnvironmentImpl.ARRAY) {
-			VarToInt transformer = new VarToInt();
-			this.grammar = transformer.transform(grammar);
-			// System.out.println(this.grammar);
-			this.mapping = transformer.getMapping();
-		} else {
-			this.grammar = grammar;
-			this.mapping = new HashMap<>();
-		}
+		VarToInt transformer = new VarToInt();
+        this.grammar = transformer.transform(grammar);
+        this.mapping = transformer.getMapping();
 		this.input = input;
 		this.config = config;
 		this.nonterminalsMap = new LinkedHashMap<>();

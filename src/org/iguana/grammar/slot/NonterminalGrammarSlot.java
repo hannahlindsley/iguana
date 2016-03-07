@@ -48,7 +48,6 @@ import org.iguana.parser.gss.GSSNode;
 import org.iguana.parser.gss.GSSNodeData;
 import org.iguana.parser.gss.lookup.GSSNodeLookup;
 import org.iguana.parser.gss.lookup.GSSNodeLookup.GSSNodeCreator;
-import org.iguana.util.Configuration.EnvironmentImpl;
 import iguana.utils.collections.key.Key;
 
 
@@ -238,10 +237,7 @@ public class NonterminalGrammarSlot extends AbstractGrammarSlot implements Nonte
 				
 				Environment newEnv;
 				
-				if (runtime.getConfiguration().getEnvImpl() == EnvironmentImpl.ARRAY)
-					newEnv = runtime.getEmptyEnvironment().declare(data.getValues());
-				else
-					newEnv = runtime.getEmptyEnvironment().declare(nonterminal.getParameters(), data.getValues());
+				newEnv = runtime.getEmptyEnvironment().declare(data.getValues());
 				
 				final GSSNode __gssNode = gssNode;
 				
