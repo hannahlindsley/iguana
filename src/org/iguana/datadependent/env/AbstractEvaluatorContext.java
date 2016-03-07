@@ -59,95 +59,57 @@ public abstract class AbstractEvaluatorContext implements IEvaluatorContext {
 		this.env = env;
 	}
 
+    @Override
+    public void declare(Object value) {
+        env = env.declare(value);
+    }
+
+    @Override
+    public void declare(Object... values) {
+        env = env.declare(values);
+    }
+
+    @Override
+    public void store(int i, Object value) {
+        env = env.store(i, value);
+    }
+
+    @Override
+    public Object lookup(int i) {
+        return env.lookup(i);
+    }
 
 	@Override
-	public void popEnvironment() {
-        // TODO: Environment: revisit
-//		env = env.pop();
-	}
-
-	@Override
-	public void pushEnvironment() {
-        // TODO: Environment: revisit
-//		env = env.push();
-	}
-
-	@Override
-	public void declareVariable(String name, Object value) {
-        // TODO: Environment: revisit
-//		env = env._declare(name, value);
-	}
-
-	@Override
-	public void declareVariables(String[] names, Object[] values) {
-		env = env.declare(names, values);
-	}
-
-	@Override
-	public void storeVariable(String name, Object value) {
-        // TODO: Environment: revisit
-//		env = env.store(name, value);
-	}
-
-	@Override
-	public Object lookupVariable(String name) {
-        // TODO: Environment: revisit
-//		return env.lookup(name);
-        return null;
-	}
-	
-	@Override
-	public void declareGlobalVariable(String name, Object value) {
+	public void declareGlobal(String name, Object value) {
 		if (global == null)
 			global = new HashMap<>();
-		
+
 		global.put(name, value);
 	}
-	
+
 	@Override
-	public void declareGlobalVariables(String[] names, Object[] values) {
+	public void declareGlobal(String[] names, Object[] values) {
 		assert names.length == values.length;
-		
+
 		if (names.length == 0)
 			return;
-		
+
 		if (global == null)
 			global = new HashMap<>();
-		
+
 		int i = 0;
 		while (i < names.length) {
 			global.put(names[i], values[i]);
 			i++;
 		}
 	}
-	
+
 	@Override
-	public Object lookupGlobalVariable(String name) {
+	public Object lookupGlobal(String name) {
 		if (global == null)
 			return null;
-		
+
 		return global.get(name);
 	}
 
-	@Override
-	public void declareVariable(Object value) {
-        // TODO: Environment: revisit
-//		env = env._declare(value);
-	}
-
-	@Override
-	public void declareVariables(Object[] values) {
-		env = env.declare(values);
-	}
-
-	@Override
-	public void storeVariable(int i, Object value) {
-		env = env.store(i, value);
-	}
-
-	@Override
-	public Object lookupVariable(int i) {
-		return env.lookup(i);
-	}
-	
 }

@@ -64,7 +64,7 @@ public class Iguana {
         grammarGraph.reset(input);
 
         if (global)
-            map.forEach((k,v) -> ctx.declareGlobalVariable(k, v));
+            map.forEach((k,v) -> ctx.declareGlobal(k, v));
 
         NonterminalGrammarSlot startSymbol = grammarGraph.getHead(nonterminal);
 

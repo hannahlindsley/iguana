@@ -45,35 +45,23 @@ public interface IEvaluatorContext {
 	 * Operations on environment
 	 * 
 	 */
-	void popEnvironment();
+	void declare(Object value);
 	
-	void pushEnvironment();
+	void declare(Object... values);
 	
-	void declareVariable(String name, Object value);
+	void store(int i, Object value);
 	
-	void declareVariables(String[] names, Object[] values);
-	
-	void storeVariable(String name, Object value);
-	
-	Object lookupVariable(String name);
-	
-	void declareVariable(Object value);
-	
-	void declareVariables(Object[] values);
-	
-	void storeVariable(int i, Object value);
-	
-	Object lookupVariable(int i);
+	Object lookup(int i);
 	
 	/**
 	 * 
 	 * Global parser environment
 	 * 
 	 */
-	void declareGlobalVariable(String name, Object value);
+	void declareGlobal(String name, Object value);
 	
-	void declareGlobalVariables(String[] names, Object[] values);
+	void declareGlobal(String[] names, Object[] values);
 	
-	Object lookupGlobalVariable(String name);
+	Object lookupGlobal(String name);
 
 }

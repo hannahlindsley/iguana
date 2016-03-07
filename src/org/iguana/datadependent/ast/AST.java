@@ -135,8 +135,8 @@ public class AST {
 						
 						NonPackedNode node = (NonPackedNode) var;
 						
-						ctx.declareGlobalVariable(ctx.getInput().subString(node.getLeftExtent(), node.getRightExtent()), 
-								                  value.interpret(ctx));
+						ctx.declareGlobal(ctx.getInput().subString(node.getLeftExtent(), node.getRightExtent()),
+                                          value.interpret(ctx));
 						
 						return null;
 					}
@@ -169,7 +169,7 @@ public class AST {
 						else if (subString.equals("false"))
 							return false;
 						
-						Object obj = ctx.lookupGlobalVariable(subString);
+						Object obj = ctx.lookupGlobal(subString);
 						return obj != null? obj : false;
 					}
 					

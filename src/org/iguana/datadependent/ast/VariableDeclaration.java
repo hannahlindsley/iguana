@@ -34,7 +34,12 @@ public class VariableDeclaration extends AbstractAST {
 	
 	private static final long serialVersionUID = 1L;
 
-	static public Object defaultValue = new Object() {};
+	static public Object defaultValue = new Object() {
+        @Override
+        public String toString() {
+            return "$";
+        }
+    };
 	
 	private final String name;
 	private final int i;
@@ -73,11 +78,8 @@ public class VariableDeclaration extends AbstractAST {
 		if (expression != null)
 			value = expression.interpret(ctx);
 		
-		if (i != -1)
-			ctx.declareVariable(value);
-		else
-			ctx.declareVariable(name, value);
-		
+		ctx.declare(value);
+
 		return null;
 	}
 	

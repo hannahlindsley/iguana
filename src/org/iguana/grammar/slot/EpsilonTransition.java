@@ -83,7 +83,8 @@ public class EpsilonTransition extends AbstractTransition {
                     return;
 
                 runtime.setEnvironment(runtime.getEmptyEnvironment());
-                runtime.getEvaluatorContext().pushEnvironment();
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().pushEnvironment();
 
                 dest.execute(input, u, node, runtime.getEnvironment());
                 return;
@@ -97,8 +98,9 @@ public class EpsilonTransition extends AbstractTransition {
 
                 runtime.setEnvironment(runtime.getEmptyEnvironment());
 
-                runtime.getEvaluatorContext().declareVariable(label, Tuple.<Integer, Integer>of(i, -1));
-                runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, label), Tuple.<Integer, Integer>of(i, -1));
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().declareVariable(label, Tuple.<Integer, Integer>of(i, -1));
+//                runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, label), Tuple.<Integer, Integer>of(i, -1));
 
                 if (conditions.execute(input, u, i, runtime.getEvaluatorContext()))
                     return;
@@ -110,7 +112,9 @@ public class EpsilonTransition extends AbstractTransition {
 
                 runtime.setEnvironment(runtime.getEmptyEnvironment());
 
-                Object value = runtime.getEvaluatorContext().lookupVariable(label);
+                // TODO: Environment, revisit
+                Object value = null;
+                // runtime.getEvaluatorContext().lookupVariable(label);
 
                 Integer lhs;
                 if (!(value instanceof Tuple)) {
@@ -119,7 +123,8 @@ public class EpsilonTransition extends AbstractTransition {
                     throw new UnexpectedRuntimeTypeException(AST.var(label));
                 }
 
-                runtime.getEvaluatorContext().storeVariable(label, Tuple.<Integer, Integer>of(lhs, i));
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().storeVariable(label, Tuple.<Integer, Integer>of(lhs, i));
 
                 if (conditions.execute(input, u, i, runtime.getEvaluatorContext()))
                     return;
@@ -170,18 +175,21 @@ public class EpsilonTransition extends AbstractTransition {
             case OPEN:
                 if (conditions.execute(input, u, i, runtime.getEvaluatorContext()))
                     return;
-                runtime.getEvaluatorContext().pushEnvironment();
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().pushEnvironment();
                 break;
 
             case CLOSE:
-                runtime.getEvaluatorContext().popEnvironment();
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().popEnvironment();
                 if (conditions.execute(input, u, i, runtime.getEvaluatorContext()))
                     return;
                 break;
 
             case DECLARE_LABEL:
-                runtime.getEvaluatorContext().declareVariable(label, Tuple.of(i, -1));
-                runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, label), Tuple.of(i, -1));
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().declareVariable(label, Tuple.of(i, -1));
+//                runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, label), Tuple.of(i, -1));
 
                 if (conditions.execute(input, u, i, runtime.getEvaluatorContext()))
                     return;
@@ -189,7 +197,9 @@ public class EpsilonTransition extends AbstractTransition {
 
             case STORE_LABEL:
 
-                Object value = runtime.getEvaluatorContext().lookupVariable(label);
+                // TODO: Environment, revisit
+                Object value = null;
+//                runtime.getEvaluatorContext().lookupVariable(label);
 
                 Integer lhs;
                 if (!(value instanceof Tuple)) {
@@ -198,7 +208,8 @@ public class EpsilonTransition extends AbstractTransition {
                     throw new UnexpectedRuntimeTypeException(AST.var(label));
                 }
 
-                runtime.getEvaluatorContext().storeVariable(label, Tuple.<Integer, Integer>of(lhs, i));
+                // TODO: Environment, revisit
+//                runtime.getEvaluatorContext().storeVariable(label, Tuple.<Integer, Integer>of(lhs, i));
 
                 if (conditions.execute(input, u, i, runtime.getEvaluatorContext()))
                     return;
@@ -208,7 +219,7 @@ public class EpsilonTransition extends AbstractTransition {
 		dest.execute(input, u, node, runtime.getEnvironment());
 	}
 
-	public static enum Type {
+	public enum Type {
 		DUMMY, OPEN, CLOSE, DECLARE_LABEL, STORE_LABEL, CLEAR_LABEL;
 	}
 

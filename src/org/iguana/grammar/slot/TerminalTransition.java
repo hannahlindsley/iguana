@@ -102,9 +102,10 @@ public class TerminalTransition extends AbstractTransition {
         int i = node.getRightExtent();
 
 		runtime.setEnvironment(env);
-		
-		if (dest.getLabel() != null)
-			runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, dest.getLabel()), i);
+
+        // TODO: Environment, revisit
+//		if (dest.getLabel() != null)
+//			runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, dest.getLabel()), i);
 
 		if (preConditions.execute(input, u, i, runtime.getEvaluatorContext()))
 			return;
@@ -116,8 +117,9 @@ public class TerminalTransition extends AbstractTransition {
 			return;
 		}
 
-		if (dest.getLabel() != null)
-			runtime.getEvaluatorContext().declareVariable(dest.getLabel(), cr);
+        // TODO: Environment, revisit
+//		if (dest.getLabel() != null)
+//			runtime.getEvaluatorContext().declareVariable(dest.getLabel(), cr);
 
 		if (postConditions.execute(input, u, cr.getRightExtent(), runtime.getEvaluatorContext()))
 			return;

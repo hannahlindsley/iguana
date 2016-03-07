@@ -268,11 +268,7 @@ public abstract class Expression extends AbstractAST {
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			Object value = i != -1? ctx.lookupVariable(i) : ctx.lookupVariable(name);
-			if (value == null) {
-				throw new UndeclaredVariableException(name);
-			}
-			return value;
+			return ctx.lookup(i);
 		}
 		
 		@Override
@@ -354,10 +350,7 @@ public abstract class Expression extends AbstractAST {
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			if(i != -1)
-				ctx.storeVariable(i, exp.interpret(ctx));
-			else
-				ctx.storeVariable(id, exp.interpret(ctx));
+			ctx.store(i, exp.interpret(ctx));
 			return null;
 		}
 		
@@ -955,7 +948,8 @@ public abstract class Expression extends AbstractAST {
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			Object value = ctx.lookupVariable(java.lang.String.format(format, label));
+            // TODO: lExt and rExt, revisit!
+			Object value = null;
 			if (value == null) {
 				throw new UndeclaredVariableException(label + "." + "lExt");
 			}
@@ -992,7 +986,8 @@ public abstract class Expression extends AbstractAST {
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			Object value = ctx.lookupVariable(label);
+            // TODO: lExt and rExt, revisit!
+			Object value = null;
 			if (value == null) {
 				throw new UndeclaredVariableException(label);
 			}
@@ -1038,14 +1033,10 @@ public abstract class Expression extends AbstractAST {
 		
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			Object value = i == -1? ctx.lookupVariable(label) : ctx.lookupVariable(i);
-			if (value == null) {
-				throw new UndeclaredVariableException(label);
-			}
-			
-			if (!(value instanceof NonPackedNode)) {
+			Object value = ctx.lookup(i);
+
+            if (!(value instanceof NonPackedNode))
 				throw new UnexpectedTypeOfArgumentException(this);
-			}
 			
 			NonPackedNode node = (NonPackedNode) value;
 			return ctx.getInput().subString(node.getLeftExtent(), node.getRightExtent());
@@ -1079,7 +1070,8 @@ public abstract class Expression extends AbstractAST {
 		
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			Object value = ctx.lookupVariable(label);
+            // TODO: lExt, rExt, val, revisit!
+			Object value = null;
 			if (value == null) {
 				throw new UndeclaredVariableException(label);
 			}

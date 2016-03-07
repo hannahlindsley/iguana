@@ -245,8 +245,9 @@ public class NonterminalGrammarSlot extends AbstractGrammarSlot implements Nonte
 					
 					runtime.setEnvironment(newEnv);
 
-					if (s.getLabel() != null)
-						runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, s.getLabel()), i);
+                    // TODO: Environment, revisit
+//					if (s.getLabel() != null)
+//						runtime.getEvaluatorContext().declareVariable(String.format(Expression.LeftExtent.format, s.getLabel()), i);
 
 					if (!s.getConditions().execute(input, __gssNode, i, runtime.getEvaluatorContext()))
 						runtime.scheduleDescriptor(new org.iguana.datadependent.descriptor.Descriptor(s, __gssNode, new DummyNode(i), input, runtime.getEnvironment()));
