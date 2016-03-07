@@ -19,7 +19,6 @@ import org.iguana.parser.Iguana;
 import org.iguana.parser.ParseResult;
 import iguana.regex.Sequence;
 import org.iguana.util.Configuration;
-import org.iguana.util.Configuration.EnvironmentImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -99,7 +98,7 @@ Grammar.builder()
          System.out.println(grammar3.toStringWithOrderByPrecedence());
 
          Input input = Input.fromString("a+-a+a");
-         GrammarGraph graph1 = GrammarGraph.from(grammar1, input, Configuration.builder().setEnvironmentImpl(EnvironmentImpl.TRIE).build());
+         GrammarGraph graph1 = GrammarGraph.from(grammar1, input, Configuration.DEFAULT);
          GrammarGraph graph2 = GrammarGraph.from(grammar2, input, Configuration.DEFAULT);
          GrammarGraph graph3 = GrammarGraph.from(grammar3, input, Configuration.DEFAULT);
          GrammarGraph graph4 = GrammarGraph.from(grammar4, input, Configuration.DEFAULT);

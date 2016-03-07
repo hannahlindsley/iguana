@@ -15,7 +15,6 @@ import org.iguana.grammar.transformation.LayoutWeaver;
 import org.iguana.parser.Iguana;
 import org.iguana.parser.ParseResult;
 import org.iguana.util.Configuration;
-import org.iguana.util.Configuration.EnvironmentImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -64,7 +63,7 @@ public class JavaNat {
          grammar4 = new LayoutWeaver().transform(grammar4);
 
          Input input = Input.fromFile(new File("src/org/iguana/util/hashing/hashfunction/MurmurHash2.java"));
-         GrammarGraph graph1 = GrammarGraph.from(grammar1, input, Configuration.builder().setEnvironmentImpl(EnvironmentImpl.TRIE).build());
+         GrammarGraph graph1 = GrammarGraph.from(grammar1, input, Configuration.DEFAULT);
          GrammarGraph graph2 = GrammarGraph.from(grammar2, input, Configuration.DEFAULT);
          GrammarGraph graph3 = GrammarGraph.from(grammar3, input, Configuration.DEFAULT);
          GrammarGraph graph4 = GrammarGraph.from(grammar4, input, Configuration.DEFAULT);

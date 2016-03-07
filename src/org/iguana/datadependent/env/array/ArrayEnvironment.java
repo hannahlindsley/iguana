@@ -15,7 +15,12 @@ public class ArrayEnvironment implements Environment {
      */
 	private final int hash;
 	
-	static public final ArrayEnvironment EMPTY = new ArrayEnvironment(null, 0);
+	static public final ArrayEnvironment EMPTY = new ArrayEnvironment(null, 0) {
+        @Override
+        public String toString() {
+            return "[empty]";
+        }
+    };
 	
 	private ArrayEnvironment(Object[] values, int hash) {
         this.values = values;
