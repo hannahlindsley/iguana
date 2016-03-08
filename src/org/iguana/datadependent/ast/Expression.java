@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
 
 import iguana.parsetrees.sppf.NonPackedNode;
 import iguana.parsetrees.sppf.NonterminalNode;
+import iguana.parsetrees.sppf.SPPFNode;
 import org.iguana.datadependent.env.IEvaluatorContext;
 import org.iguana.datadependent.traversal.IAbstractASTVisitor;
-import org.iguana.grammar.exception.UndeclaredVariableException;
 import org.iguana.grammar.exception.UnexpectedTypeOfArgumentException;
 
 import static iguana.utils.string.StringUtil.*;
@@ -268,12 +268,12 @@ public abstract class Expression extends AbstractAST {
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			return ctx.lookup(i);
+            return ctx.lookup(i);
 		}
 		
 		@Override
 		public java.lang.String toString() {
-			return name + (i != -1? ":" + i : "");
+			return name + (i != -1 ? ":" + i : "");
 		}
 
 		@Override
@@ -356,7 +356,7 @@ public abstract class Expression extends AbstractAST {
 		
 		@Override
 		public java.lang.String toString() {
-			return i != -1? java.lang.String.format("%s:%s = %s", id, i, exp) : java.lang.String.format("%s = %s", id, exp);
+			return i != -1 ? java.lang.String.format("%s:%s = %s", id, i, exp) : java.lang.String.format("%s = %s", id, exp);
 		}
 
 		@Override
@@ -576,7 +576,7 @@ public abstract class Expression extends AbstractAST {
 			if (lhs == true)
 				return lhs;
 			
-			return (java.lang.Boolean) this.rhs.interpret(ctx);
+			return this.rhs.interpret(ctx);
 		}
 
 		@Override
@@ -617,7 +617,7 @@ public abstract class Expression extends AbstractAST {
 			if (lhs == false)
 				return lhs;
 			
-			return (java.lang.Boolean) this.rhs.interpret(ctx);
+			return this.rhs.interpret(ctx);
 		}
 
 		@Override
@@ -657,13 +657,11 @@ public abstract class Expression extends AbstractAST {
 			Object lhs = this.lhs.interpret(ctx);
 			Object rhs = this.rhs.interpret(ctx);
 			
-			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer) {
-				return ((java.lang.Integer) lhs) < ((java.lang.Integer) rhs);
-			}
+			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
+				return ((int) lhs) < ((int) rhs);
 			
-			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float) {
-				return ((java.lang.Float) lhs) < ((java.lang.Float) rhs);
-			}
+			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float)
+				return ((float) lhs) < ((float) rhs);
 						
 			throw new UnexpectedTypeOfArgumentException(this);
 		}
@@ -705,13 +703,11 @@ public abstract class Expression extends AbstractAST {
 			Object lhs = this.lhs.interpret(ctx);
 			Object rhs = this.rhs.interpret(ctx);
 			
-			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer) {
-				return ((java.lang.Integer) lhs) <= ((java.lang.Integer) rhs);
-			}
+			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
+				return ((int) lhs) <= ((int) rhs);
 			
-			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float) {
-				return ((java.lang.Float) lhs) <= ((java.lang.Float) rhs);
-			}
+			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float)
+				return ((float) lhs) <= ((float) rhs);
 						
 			throw new UnexpectedTypeOfArgumentException(this);
 		}
@@ -753,13 +749,11 @@ public abstract class Expression extends AbstractAST {
 			Object lhs = this.lhs.interpret(ctx);
 			Object rhs = this.rhs.interpret(ctx);
 			
-			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer) {
-				return ((java.lang.Integer) lhs) > ((java.lang.Integer) rhs);
-			}
+			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
+				return ((int) lhs) > ((int) rhs);
 			
-			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float) {
-				return ((java.lang.Float) lhs) > ((java.lang.Float) rhs);
-			}
+			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float)
+				return ((float) lhs) > ((float) rhs);
 						
 			throw new UnexpectedTypeOfArgumentException(this);
 		}
@@ -801,13 +795,11 @@ public abstract class Expression extends AbstractAST {
 			Object lhs = this.lhs.interpret(ctx);
 			Object rhs = this.rhs.interpret(ctx);
 			
-			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer) {
-				return ((java.lang.Integer) lhs) >= ((java.lang.Integer) rhs);
-			}
+			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
+				return ((int) lhs) >= ((int) rhs);
 			
-			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float) {
-				return ((java.lang.Float) lhs) >= ((java.lang.Float) rhs);
-			}
+			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float)
+				return ((float) lhs) >= ((float) rhs);
 						
 			throw new UnexpectedTypeOfArgumentException(this);
 		}
@@ -855,17 +847,14 @@ public abstract class Expression extends AbstractAST {
 				return false;
 			}
 			
-			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer) {
-				return ((java.lang.Integer) lhs).equals((java.lang.Integer) rhs);
-			}
+			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
+				return ((int) lhs) == ((int) rhs);
 			
-			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float) {
-				return ((java.lang.Float) lhs).equals((java.lang.Float) rhs);
-			}
+			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float)
+				return ((float) lhs) == ((float) rhs);
 			
-			if (lhs instanceof java.lang.String && rhs instanceof java.lang.String) {
-				return ((java.lang.String) lhs).equals((java.lang.String) rhs);
-			}
+			if (lhs instanceof java.lang.String && rhs instanceof java.lang.String)
+				return lhs.equals(rhs);
 						
 			throw new UnexpectedTypeOfArgumentException(this);
 		}
@@ -907,15 +896,13 @@ public abstract class Expression extends AbstractAST {
 			Object lhs = this.lhs.interpret(ctx);
 			Object rhs = this.rhs.interpret(ctx);
 			
-			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer) {
-				return ((java.lang.Integer) lhs) != ((java.lang.Integer) rhs);
-			}
+			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
+				return ((int) lhs) != ((int) rhs);
 			
-			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float) {
-				return ((java.lang.Float) lhs) != ((java.lang.Float) rhs);
-			}
-						
-			throw new UnexpectedTypeOfArgumentException(this);
+			if (lhs instanceof java.lang.Float && rhs instanceof java.lang.Float)
+				return ((float) lhs) != ((float) rhs);
+
+            throw new UnexpectedTypeOfArgumentException(this);
 		}
 		
 		@Override
@@ -937,28 +924,34 @@ public abstract class Expression extends AbstractAST {
 		static public java.lang.String format = "%s.lExt";
 		
 		private final java.lang.String label;
-		
-		LeftExtent(java.lang.String label) {
+        private final int i;
+
+        LeftExtent(java.lang.String label) {
+            this(label, -1);
+        }
+
+		LeftExtent(java.lang.String label, int i) {
 			this.label = label;
+            this.i = i;
 		}
-		
+
 		public java.lang.String getLabel() {
 			return label;
 		}
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-            // TODO: lExt and rExt, revisit!
-			Object value = null;
-			if (value == null) {
-				throw new UndeclaredVariableException(label + "." + "lExt");
-			}
-			return value;
+            Object value = ctx.lookup(i);
+
+            if (value instanceof org.iguana.util.Tuple<?,?>)
+                return ((org.iguana.util.Tuple<?,?>) value).getFirst();
+            else
+                return ((SPPFNode) value).getLeftExtent();
 		}
 		
 		@Override
 		public java.lang.String toString() {
-			return java.lang.String.format("%s.lExt", label);
+			return i != -1 ? java.lang.String.format("%s:%d.lExt", label, i) : java.lang.String.format("%s.lExt", label);
 		}
 
 		@Override
@@ -975,10 +968,16 @@ public abstract class Expression extends AbstractAST {
 		static public java.lang.String format = "%s.rExt";
 		
 		private final java.lang.String label;
+        private final int i;
 		
 		RightExtent(java.lang.String label) {
-			this.label = label;
+			this(label, -1);
 		}
+
+        RightExtent(java.lang.String label, int i) {
+            this.label = label;
+            this.i = i;
+        }
 		
 		public java.lang.String getLabel() {
 			return label;
@@ -986,22 +985,13 @@ public abstract class Expression extends AbstractAST {
 
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-            // TODO: lExt and rExt, revisit!
-			Object value = null;
-			if (value == null) {
-				throw new UndeclaredVariableException(label);
-			}
-			
-			if (!(value instanceof NonPackedNode)) {
-				throw new UnexpectedTypeOfArgumentException(this);
-			}
-			
-			return ((NonPackedNode) value).getRightExtent();
+            Object value = ctx.lookup(i);
+			return ((SPPFNode) value).getRightExtent();
 		}
 		
 		@Override
 		public java.lang.String toString() {
-			return java.lang.String.format("%s.rExt", label);
+			return i != -1 ? java.lang.String.format("%s:%d.rExt", label, i) : java.lang.String.format("%s.rExt", label);
 		}
 
 		@Override
@@ -1033,18 +1023,13 @@ public abstract class Expression extends AbstractAST {
 		
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-			Object value = ctx.lookup(i);
-
-            if (!(value instanceof NonPackedNode))
-				throw new UnexpectedTypeOfArgumentException(this);
-			
-			NonPackedNode node = (NonPackedNode) value;
-			return ctx.getInput().subString(node.getLeftExtent(), node.getRightExtent());
+            NonPackedNode value = (NonPackedNode) ctx.lookup(i);
+            return ctx.getInput().subString(value.getLeftExtent(), value.getRightExtent());
 		}
 		
 		@Override
 		public java.lang.String toString() {
-			return i == -1? java.lang.String.format("%s.yield", label) : java.lang.String.format("%s:%d.yield", label, i);
+			return i == -1 ? java.lang.String.format("%s.yield", label) : java.lang.String.format("%s:%d.yield", label, i);
 		}
 
 		@Override
@@ -1059,10 +1044,16 @@ public abstract class Expression extends AbstractAST {
 		static public java.lang.String format = "%s.val";
 		
 		private final java.lang.String label;
+        private final int i;
 		
 		Val(java.lang.String label) {
-			this.label = label;
+			this(label, -1);
 		}
+
+        Val(java.lang.String label, int i) {
+            this.label = label;
+            this.i = i;
+        }
 		
 		public java.lang.String getLabel() {
 			return label;
@@ -1070,24 +1061,13 @@ public abstract class Expression extends AbstractAST {
 		
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
-            // TODO: lExt, rExt, val, revisit!
-			Object value = null;
-			if (value == null) {
-				throw new UndeclaredVariableException(label);
-			}
-			
-			if (!(value instanceof NonterminalNode)) {
-				throw new UnexpectedTypeOfArgumentException(this);
-			}
-			
-			NonterminalNode node = (NonterminalNode) value;
-			
-			return node.getValue();
+            NonterminalNode value = (NonterminalNode) ctx.lookup(i);
+			return value.getValue();
 		}
 		
 		@Override
 		public java.lang.String toString() {
-			return java.lang.String.format("%s.val", label);
+			return i != -1 ? java.lang.String.format("%s:%d.val", label, i) : java.lang.String.format("%s.val", label);
 		}
 
 		@Override

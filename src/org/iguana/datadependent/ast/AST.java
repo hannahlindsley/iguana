@@ -758,10 +758,18 @@ public class AST {
 	static public Expression lExt(String label) {
 		return new Expression.LeftExtent(label);
 	}
+
+    static public Expression lExt(String label, int i) {
+        return new Expression.LeftExtent(label, i);
+    }
 	
 	static public Expression rExt(String label) {
 		return new Expression.RightExtent(label);
 	}
+
+    static public Expression rExt(String label, int i) {
+        return new Expression.RightExtent(label, i);
+    }
 	
 	static public Expression yield(String label) {
 		return new Expression.Yield(label);
@@ -774,6 +782,10 @@ public class AST {
 	static public Expression val(String label) {
 		return new Expression.Val(label);
 	}
+
+    static public Expression val(String label, int i) {
+        return new Expression.Val(label, i);
+    }
 	
 	static public Expression endOfFile(Expression index) {
 		return new Expression.EndOfFile(index);
