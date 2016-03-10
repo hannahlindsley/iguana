@@ -392,7 +392,7 @@ public abstract class Expression extends AbstractAST {
 			Object rhs = this.rhs.interpret(ctx);
 			
 			if (lhs instanceof java.lang.Integer && rhs instanceof java.lang.Integer)
-				return (((java.lang.Integer) lhs) & (1 << ((java.lang.Integer) rhs))) == 0;
+				return (((int) lhs) & (1 << ((int) rhs))) == 0;
 			
 			throw new UnexpectedTypeOfArgumentException(this);
 		}
@@ -444,17 +444,17 @@ public abstract class Expression extends AbstractAST {
 		@Override
 		public Object interpret(IEvaluatorContext ctx) {
 			
-			int ind = (java.lang.Integer) this.ind.interpret(ctx);
+			int ind = (int) this.ind.interpret(ctx);
 			
 			if (ind == 0)
 				return true;
 			
-			int first = (java.lang.Integer) this.first.interpret(ctx);
+			int first = (int) this.first.interpret(ctx);
 			int lExt = -1;
 			if (first == 1) {
 				
-				int index = (java.lang.Integer) this.index.interpret(ctx);
-				lExt = (java.lang.Integer) this.lExt.interpret(ctx);
+				int index = (int) this.index.interpret(ctx);
+				lExt = (int) this.lExt.interpret(ctx);
 				
 				if(lExt - index == 0) 
 					return true;
