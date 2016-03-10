@@ -44,59 +44,60 @@ import java.util.Arrays;
 /**
  * Created by Anastasia Izmaylova
  */
-public class DefaultSymbolVisitor implements ISymbolVisitor<Void>, IAbstractASTVisitor<Void>, IConditionVisitor<Void> {
+public interface DefaultSymbolVisitor extends ISymbolVisitor<Void>, IAbstractASTVisitor<Void>, IConditionVisitor<Void> {
+
     @Override
-    public Void visit(Expression.Boolean expression) {
+    default Void visit(Expression.Boolean expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.Integer expression) {
+    default Void visit(Expression.Integer expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.Real expression) {
+    default Void visit(Expression.Real expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.String expression) {
+    default Void visit(Expression.String expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.Tuple expression) {
+    default Void visit(Expression.Tuple expression) {
         for (Expression e : expression.getElements()) e.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.Name expression) {
+    default Void visit(Expression.Name expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.Call expression) {
+    default Void visit(Expression.Call expression) {
         for (Expression e : expression.getArguments()) e.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.Assignment expression) {
+    default Void visit(Expression.Assignment expression) {
         expression.getExpression().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.LShiftANDEqZero expression) {
+    default Void visit(Expression.LShiftANDEqZero expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.OrIndent expression) {
+    default Void visit(Expression.OrIndent expression) {
         expression.getIndex().accept(this);
         expression.getIndent().accept(this);
         expression.getFirst().accept(this);
@@ -105,7 +106,7 @@ public class DefaultSymbolVisitor implements ISymbolVisitor<Void>, IAbstractASTV
     }
 
     @Override
-    public Void visit(Expression.AndIndent expression) {
+    default Void visit(Expression.AndIndent expression) {
         expression.getIndex().accept(this);
         expression.getFirst().accept(this);
         expression.getLExt().accept(this);
@@ -113,88 +114,88 @@ public class DefaultSymbolVisitor implements ISymbolVisitor<Void>, IAbstractASTV
     }
 
     @Override
-    public Void visit(Expression.Or expression) {
+    default Void visit(Expression.Or expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.And expression) {
+    default Void visit(Expression.And expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.Less expression) {
+    default Void visit(Expression.Less expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.LessThanEqual expression) {
+    default Void visit(Expression.LessThanEqual expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.Greater expression) {
+    default Void visit(Expression.Greater expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.GreaterThanEqual expression) {
+    default Void visit(Expression.GreaterThanEqual expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.Equal expression) {
+    default Void visit(Expression.Equal expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.NotEqual expression) {
+    default Void visit(Expression.NotEqual expression) {
         expression.getLhs().accept(this);
         expression.getRhs().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Expression.LeftExtent expression) {
+    default Void visit(Expression.LeftExtent expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.RightExtent expression) {
+    default Void visit(Expression.RightExtent expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.Yield expression) {
+    default Void visit(Expression.Yield expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.Val expression) {
+    default Void visit(Expression.Val expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.EndOfFile expression) {
+    default Void visit(Expression.EndOfFile expression) {
         return null;
     }
 
     @Override
-    public Void visit(Expression.IfThenElse expression) {
+    default Void visit(Expression.IfThenElse expression) {
         expression.getCondition().accept(this);
         expression.getThenPart().accept(this);
         expression.getElsePart().accept(this);
@@ -202,7 +203,7 @@ public class DefaultSymbolVisitor implements ISymbolVisitor<Void>, IAbstractASTV
     }
 
     @Override
-    public Void visit(VariableDeclaration declaration) {
+    default Void visit(VariableDeclaration declaration) {
         Expression e = declaration.getExpression();
         if (e != null)
             e.accept(this);
@@ -210,68 +211,68 @@ public class DefaultSymbolVisitor implements ISymbolVisitor<Void>, IAbstractASTV
     }
 
     @Override
-    public Void visit(Statement.Expression statement) {
+    default Void visit(Statement.Expression statement) {
         statement.getExpression().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Statement.VariableDeclaration statement) {
+    default Void visit(Statement.VariableDeclaration statement) {
         statement.getDeclaration().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(DataDependentCondition condition) {
+    default Void visit(DataDependentCondition condition) {
         condition.getExpression().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(PositionalCondition condition) {
+    default Void visit(PositionalCondition condition) {
         return null;
     }
 
     @Override
-    public Void visit(RegularExpressionCondition condition) {
+    default Void visit(RegularExpressionCondition condition) {
         return null;
     }
 
     @Override
-    public Void visit(Align symbol) {
+    default Void visit(Align symbol) {
         visitSymbol(symbol.getSymbol());
         return null;
     }
 
     @Override
-    public Void visit(Block symbol) {
+    default Void visit(Block symbol) {
         Arrays.asList(symbol.getSymbols()).forEach(this::visitSymbol);
         return null;
     }
 
     @Override
-    public Void visit(Code symbol) {
+    default Void visit(Code symbol) {
         visitSymbol(symbol.getSymbol());
         for (Statement stat : symbol.getStatements()) stat.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Conditional symbol) {
+    default Void visit(Conditional symbol) {
         visitSymbol(symbol.getSymbol());
         symbol.getExpression().accept(this);
         return null;
     }
 
     @Override
-    public Void visit(IfThen symbol) {
+    default Void visit(IfThen symbol) {
         symbol.getExpression().accept(this);
         visitSymbol(symbol.getThenPart());
         return null;
     }
 
     @Override
-    public Void visit(IfThenElse symbol) {
+    default Void visit(IfThenElse symbol) {
         symbol.getExpression().accept(this);
         visitSymbol(symbol.getThenPart());
         visitSymbol(symbol.getElsePart());
@@ -279,72 +280,72 @@ public class DefaultSymbolVisitor implements ISymbolVisitor<Void>, IAbstractASTV
     }
 
     @Override
-    public Void visit(Ignore symbol) {
+    default Void visit(Ignore symbol) {
         visitSymbol(symbol.getSymbol());
         return null;
     }
 
     @Override
-    public Void visit(Nonterminal symbol) {
+    default Void visit(Nonterminal symbol) {
         for (Expression e : symbol.getArguments()) e.accept(this);
         return null;
     }
 
     @Override
-    public Void visit(Offside symbol) {
+    default Void visit(Offside symbol) {
         visitSymbol(symbol.getSymbol());
         return null;
     }
 
     @Override
-    public Void visit(Terminal symbol) {
+    default Void visit(Terminal symbol) {
         return null;
     }
 
     @Override
-    public Void visit(While symbol) {
+    default Void visit(While symbol) {
         symbol.getExpression().accept(this);
         visitSymbol(symbol.getBody());
         return null;
     }
 
     @Override
-    public Void visit(Return symbol) {
+    default Void visit(Return symbol) {
         symbol.getExpression().accept(this);
         return null;
     }
 
     @Override
-    public <E extends Symbol> Void visit(Alt<E> symbol) {
+    default <E extends Symbol> Void visit(Alt<E> symbol) {
         symbol.getSymbols().forEach(this::visitSymbol);
         return null;
     }
 
     @Override
-    public Void visit(Opt symbol) {
+    default Void visit(Opt symbol) {
         visitSymbol(symbol.getSymbol());
         return null;
     }
 
     @Override
-    public Void visit(Plus symbol) {
+    default Void visit(Plus symbol) {
         visitSymbol(symbol.getSymbol());
         return null;
     }
 
     @Override
-    public <E extends Symbol> Void visit(Sequence<E> symbol) {
+    default <E extends Symbol> Void visit(Sequence<E> symbol) {
         symbol.getSymbols().forEach(this::visitSymbol);
         return null;
     }
 
     @Override
-    public Void visit(Star symbol) {
+    default Void visit(Star symbol) {
         visitSymbol(symbol.getSymbol());
         return null;
     }
 
-    protected void visitSymbol(Symbol symbol) {
+    default void visitSymbol(Symbol symbol) {
         for (Condition cond : symbol.getPreConditions()) cond.accept(this);
         symbol.accept(this);
         for (Condition cond : symbol.getPostConditions()) cond.accept(this);
