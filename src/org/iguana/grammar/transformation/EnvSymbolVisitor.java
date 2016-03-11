@@ -39,12 +39,29 @@ import java.util.Map;
 /**
  * Created by Anastasia Izmaylova
  */
+
+/**
+ * Description:
+ *
+ *     - Shadowing of local variable is NOT allowed; also in inner scopes introduced by EBNF constructs;
+ *
+ *     - In x = l:A(args), if x is in the scope, it is reassigned a new value; otherwise,
+ *       a new variable x is introduced into the scope; l is a new variable introduced into the scope;
+ *
+ *     - In x = e, a new value is reassigned to x;
+ *
+ *     - In var x and var x = e, a new variable is introduced into the scope;
+ */
 public class EnvSymbolVisitor implements DefaultSymbolVisitor {
 
+    private final static Object DEFAULT = new Object();
     private Map<String, Object> env = new HashMap<>();
-    private static Object DEFAULT = new Object();
 
     protected EnvSymbolVisitor() {}
+
+    public Map<String, Object> getEnv() {
+        return env;
+    }
 
     @Override
     public Void visit(Expression.Name expression) {
@@ -176,24 +193,25 @@ public class EnvSymbolVisitor implements DefaultSymbolVisitor {
         declare(label);
 
         if (canDeclareVariable(symbol)) {
-            // TODO: Allow the other types of symbols to declare a variable
+            // TODO: Allow the other types of symbols to have a variable
             if (symbol instanceof Nonterminal) {
                 String variable = ((Nonterminal) symbol).getVariable();
-                if (variable != null) {
+                if (variable != null && !env.containsKey(variable))
                     declare(variable);
-                }
             }
         }
 
         for (Condition cond : symbol.getPostConditions()) cond.accept(this);
     }
 
-    public void declare(String name) {
+    protected void declare(String name) {
+        if (env.containsKey(name))
+            throw new RuntimeException("Redeclaration of a local variable: " + name);
         env = new HashMap<>(env);
         env.put(name, DEFAULT);
     }
 
-    private void check(String name) {
+    protected void check(String name) {
         if (!env.containsKey(name))
             throw new UndeclaredVariableException(name);
     }
