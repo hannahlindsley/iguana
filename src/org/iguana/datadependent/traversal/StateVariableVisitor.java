@@ -60,34 +60,94 @@ import java.util.*;
  */
 public class StateVariableVisitor extends EnvSymbolVisitor {
 
-    private final Map<String, Object> variables;
+    /*
+     * variables    - global variables in the grammar
+     * reachability - transitive closure of reachable nonterminals in the grammar
+     * usesIn       - uses of state variables in a nonterminal (transitively closed); key: the nonterminal's name
+     * updates      - updates to state variables in a nonterminal (transitively closed); key: the nonterminal's name
+     * usesAfter    - uses of state variables after a nonterminal across all the grammar rules: key: the nonterminal's name
+     * bindings     - variable bindings required after a nonterminal;
+     *                variable bindings are associated with a rule and a grammar position in this rule
+     *                if a rule does not use global variable, the corresponding inner list is EMPTY_LIST
+     */
+    private Map<String, Object> variables;
+    private Map<String, Set<String>> reachability;
 
-    private final Map<String, Set<String>> usesIn = new HashMap<>();    // per nonterminal
-    private final Map<String, Set<String>> updates = new HashMap<>();   // per nonterminal
-    private final Map<String, Set<String>> usesAfter = new HashMap<>(); // per nonterminal
+    private final Map<String, Set<String>> usesIn = new HashMap<>();
+    private final Map<String, Set<String>> updates = new HashMap<>();
+    private final Map<String, Set<String>> usesAfter = new HashMap<>();
+    private final Map<String, List<List<Set<String>>>> bindings = new HashMap<>();
+
 
     private Set<String> currUsesIn;
     private Set<String> currUpdates;
-    private Set<String> currUsesAfter;
-    private List<String> currNonts;
 
-    public StateVariableVisitor(Map<String, Object> variables) {
+    private String currHead;
+    private List<String> currNonterminals;
+    private List<Set<String>> currUsesAfter;
+
+    private static final Set<String> EMPTY_SET = new HashSet<>();
+    private static final List<Set<String>> EMPTY_LIST = new ArrayList<>();
+
+    public void visit(Grammar grammar, Map<String, Object> variables, Map<String, Set<String>> reachability) {
         this.variables = variables;
-    }
-
-    public void visit(Grammar grammar) {
-
-    }
-
-    public void visit(Rule rule) {
-        visit(rule.head(), rule.getBody());
+        this.reachability = reachability;
+        grammar.getRules().forEach(rule -> visit(rule.head(), rule.getBody()));
     }
 
     private void visit(String head, List<Symbol> body) {
-        currUsesIn = usesIn.computeIfAbsent(head, key -> new HashSet<>());
-        currUpdates = updates.computeIfAbsent(head, key -> new HashSet<>());
-        currNonts = new ArrayList<>();
+        currUsesIn = EMPTY_SET;
+        currUpdates = EMPTY_SET;
+        currNonterminals = new ArrayList<>();
+        currUsesAfter = new ArrayList<>();
+
         body.forEach(this::visitSymbol);
+
+        recordUsesIn(head);
+        recordUpdates(head);
+
+        boolean added = recordUsesAfter();
+
+        List<List<Set<String>>> v;
+        if ((v = bindings.get(head)) != null) {
+            if (added) {
+                v.add(currUsesAfter);
+            }
+        } else {
+            bindings.put(head, new ArrayList<>(Arrays.asList(added ? currUsesAfter : EMPTY_LIST)));
+        }
+
+    }
+
+    private void recordUsesIn(String head) {
+        if (currUsesIn == EMPTY_SET) return;
+        Set<String> v = usesIn.computeIfAbsent(head, key -> currUsesIn);
+        if (v != currUsesIn)
+            v.addAll(currUsesIn);
+    }
+
+    private void recordUpdates(String head) {
+        if (currUpdates == EMPTY_SET) return;
+        Set<String> v = updates.computeIfAbsent(head, key -> currUpdates);
+        if (v != currUpdates)
+            v.addAll(currUpdates);
+    }
+
+    private boolean recordUsesAfter() {
+        Iterator<String> it1 = currNonterminals.iterator();
+        Iterator<Set<String>> it2 = currUsesAfter.iterator();
+        boolean noUses = true;
+        while (it1.hasNext()) {
+            String nt = it1.next();
+            Set<String> v = it2.next();
+            if (v != EMPTY_SET) {
+                noUses = false;
+                Set<String> x = usesAfter.computeIfAbsent(nt, key -> v);
+                if (x != v)
+                    x.addAll(v);
+            }
+        }
+        return !noUses;
     }
 
     @Override
@@ -138,8 +198,8 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
     public Void visit(Nonterminal symbol) {
         super.visit(symbol);
         String name = symbol.getName();
-        currUsesAfter = usesAfter.computeIfAbsent(name, key -> new HashSet<>());
-        currNonts.add(name);
+        currNonterminals.add(name);
+        currUsesAfter.add(EMPTY_SET);
         return null;
     }
 
@@ -152,7 +212,7 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
     private void addUse(String name) {
         if (!getEnv().containsKey(name) && variables.containsKey(name)) {
             currUsesIn.add(name);
-            currUsesAfter.add(name);
+//            currUsesAfter.add(name);
         }
     }
 
