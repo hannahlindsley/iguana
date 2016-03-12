@@ -216,7 +216,7 @@ public class EnvSymbolVisitor implements DefaultSymbolVisitor {
             throw new UndeclaredVariableException(name);
     }
 
-    private boolean canDeclareVariable(Symbol symbol) {
+    protected boolean canDeclareVariable(Symbol symbol) {
         if (symbol instanceof Nonterminal
                 || symbol instanceof Alt<?> || symbol instanceof Opt || symbol instanceof Plus
                 || symbol instanceof Sequence<?> || symbol instanceof Star)

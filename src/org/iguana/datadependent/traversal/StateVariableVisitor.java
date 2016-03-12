@@ -30,9 +30,7 @@ package org.iguana.datadependent.traversal;
 import org.iguana.datadependent.ast.Expression;
 import org.iguana.grammar.Grammar;
 import org.iguana.grammar.exception.UndeclaredVariableException;
-import org.iguana.grammar.symbol.Nonterminal;
-import org.iguana.grammar.symbol.Rule;
-import org.iguana.grammar.symbol.Symbol;
+import org.iguana.grammar.symbol.*;
 import org.iguana.grammar.transformation.EnvSymbolVisitor;
 
 import java.util.*;
@@ -63,20 +61,24 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
     /*
      * variables    - global variables in the grammar
      * reachability - transitive closure of reachable nonterminals in the grammar
-     * usesIn       - uses of state variables in a nonterminal (transitively closed); key: the nonterminal's name
-     * updates      - updates to state variables in a nonterminal (transitively closed); key: the nonterminal's name
-     * usesAfter    - uses of state variables after a nonterminal across all the grammar rules: key: the nonterminal's name
+     * usesIn       - uses of global variables in a nonterminal (transitively closed); key: the nonterminal's name
+     * updates      - updates to global variables in a nonterminal (transitively closed); key: the nonterminal's name
+     * usesAfter    - uses of global variables after a nonterminal across all the grammar rules: key: the nonterminal's name
      * bindings     - variable bindings required after a nonterminal;
      *                variable bindings are associated with a rule and a grammar position in this rule
      *                if a rule does not use global variable, the corresponding inner list is EMPTY_LIST
+     *
+     * Notes: EBNF constructs are allowed at this step; EBNF constructs introduce inner scopes that can use and update
+     *        variable of outer scopes; the uses and updates to global variables found inside an EBNF construct are
+     *        added to the uses and updates of the nonterminal in which the construct appears
      */
     private Map<String, Object> variables;
     private Map<String, Set<String>> reachability;
 
-    private final Map<String, Set<String>> usesIn = new HashMap<>();
-    private final Map<String, Set<String>> updates = new HashMap<>();
-    private final Map<String, Set<String>> usesAfter = new HashMap<>();
-    private final Map<String, List<List<Set<String>>>> bindings = new HashMap<>();
+    private Map<String, Set<String>> usesIn = new HashMap<>();
+    private Map<String, Set<String>> updates = new HashMap<>();
+    private Map<String, Set<String>> usesAfter = new HashMap<>();
+    private Map<String, List<List<Set<String>>>> bindings = new HashMap<>();
 
 
     private Set<String> currUsesIn;
@@ -93,9 +95,12 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
         this.variables = variables;
         this.reachability = reachability;
         grammar.getRules().forEach(rule -> visit(rule.head(), rule.getBody()));
+        usesIn = close(usesIn, reachability);
+        updates = close(updates, reachability);
+//        usesAfter = close(usesAfter);
     }
 
-    private void visit(String head, List<Symbol> body) {
+    protected void visit(String head, List<Symbol> body) {
         currUsesIn = EMPTY_SET;
         currUpdates = EMPTY_SET;
         currNonterminals = new ArrayList<>();
@@ -110,13 +115,10 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
 
         List<List<Set<String>>> v;
         if ((v = bindings.get(head)) != null) {
-            if (added) {
+            if (added)
                 v.add(currUsesAfter);
-            }
-        } else {
+        } else
             bindings.put(head, new ArrayList<>(Arrays.asList(added ? currUsesAfter : EMPTY_LIST)));
-        }
-
     }
 
     private void recordUsesIn(String head) {
@@ -140,7 +142,7 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
         while (it1.hasNext()) {
             String nt = it1.next();
             Set<String> v = it2.next();
-            if (v != EMPTY_SET) {
+            if (!v.isEmpty()) {
                 noUses = false;
                 Set<String> x = usesAfter.computeIfAbsent(nt, key -> v);
                 if (x != v)
@@ -150,10 +152,27 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
         return !noUses;
     }
 
+    protected Map<String, Set<String>> close(Map<String, Set<String>> map, Map<String, Set<String>> reachability) {
+        Map<String, Set<String>> result = new HashMap<>();
+        for (Map.Entry<String, Set<String>> e : map.entrySet()) {
+            Set<String> s1 = new HashSet<>(e.getValue());
+            Set<String> s2 = reachability.get(e.getKey());
+            if (s2 != null && !s2.isEmpty()) {
+                for (String nt : s2) {
+                    Set<String> s3 = map.get(nt);
+                    if (s3 != null)
+                        s1.addAll(s3);
+                }
+            }
+            result.put(e.getKey(), s1);
+        }
+        return result;
+    }
+
     @Override
     public Void visit(Expression.Name expression) {
         super.visit(expression);
-        addUse(expression.getName());
+        checkPossibleUse(expression.getName());
         return null;
     }
 
@@ -169,28 +188,28 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
     @Override
     public Void visit(Expression.LeftExtent expression) {
         super.visit(expression);
-        addUse(expression.getLabel());
+        checkPossibleUse(expression.getLabel());
         return null;
     }
 
     @Override
     public Void visit(Expression.RightExtent expression) {
         super.visit(expression);
-        addUse(expression.getLabel());
+        checkPossibleUse(expression.getLabel());
         return null;
     }
 
     @Override
     public Void visit(Expression.Val expression) {
         super.visit(expression);
-        addUse(expression.getLabel());
+        checkPossibleUse(expression.getLabel());
         return null;
     }
 
     @Override
     public Void visit(Expression.Yield expression) {
         super.visit(expression);
-        addUse(expression.getLabel());
+        checkPossibleUse(expression.getLabel());
         return null;
     }
 
@@ -199,8 +218,20 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
         super.visit(symbol);
         String name = symbol.getName();
         currNonterminals.add(name);
-        currUsesAfter.add(EMPTY_SET);
+        currUsesAfter.add(new HashSet<>());
         return null;
+    }
+
+    @Override
+    public void visitSymbol(Symbol symbol) {
+        if (canDeclareVariable(symbol)) {
+            if (symbol instanceof Nonterminal) {
+                String variable = ((Nonterminal) symbol).getVariable();
+                if (variable != null)
+                    checkPossibleUse(variable);
+            }
+        }
+        super.visitSymbol(symbol);
     }
 
     @Override
@@ -209,10 +240,10 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
             throw new UndeclaredVariableException(name);
     }
 
-    private void addUse(String name) {
+    protected void checkPossibleUse(String name) {
         if (!getEnv().containsKey(name) && variables.containsKey(name)) {
             currUsesIn.add(name);
-//            currUsesAfter.add(name);
+            currUsesAfter.forEach(v -> v.add(name));
         }
     }
 
