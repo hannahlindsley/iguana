@@ -60,7 +60,6 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
 
     /*
      * variables    - global variables in the grammar
-     * reachability - transitive closure of reachable nonterminals in the grammar
      * usesIn       - uses of global variables in a nonterminal (transitively closed); key: the nonterminal's name
      * updates      - updates to global variables in a nonterminal (transitively closed); key: the nonterminal's name
      * usesAfter    - uses of global variables after a nonterminal across all the grammar rules: key: the nonterminal's name
@@ -70,34 +69,44 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
      *
      * Notes: EBNF constructs are allowed at this step; EBNF constructs introduce inner scopes that can use and update
      *        variable of outer scopes; the uses and updates to global variables found inside an EBNF construct are
-     *        added to the uses and updates of the nonterminal in which the construct appears
+     *        added to the uses and updates of the nonterminal in which this EBNF construct appears
      */
     private Map<String, Object> variables;
-    private Map<String, Set<String>> reachability;
 
     private Map<String, Set<String>> usesIn = new HashMap<>();
     private Map<String, Set<String>> updates = new HashMap<>();
     private Map<String, Set<String>> usesAfter = new HashMap<>();
     private Map<String, List<List<Set<String>>>> bindings = new HashMap<>();
+    private Map<String, List<String>> returns = new HashMap<>();
 
 
     private Set<String> currUsesIn;
     private Set<String> currUpdates;
 
-    private String currHead;
     private List<String> currNonterminals;
     private List<Set<String>> currUsesAfter;
 
     private static final Set<String> EMPTY_SET = new HashSet<>();
     private static final List<Set<String>> EMPTY_LIST = new ArrayList<>();
 
+    /**
+     * @param variables    - global variables
+     * @param reachability - transitive closure of reachable nonterminals in the grammar
+     */
     public void visit(Grammar grammar, Map<String, Object> variables, Map<String, Set<String>> reachability) {
         this.variables = variables;
-        this.reachability = reachability;
         grammar.getRules().forEach(rule -> visit(rule.head(), rule.getBody()));
         usesIn = close(usesIn, reachability);
         updates = close(updates, reachability);
-//        usesAfter = close(usesAfter);
+        usesAfter = close(usesAfter, reverse(reachability));
+        updates.entrySet().forEach(e -> {
+            Set<String> x = usesAfter.get(e.getKey());
+            List<String> y = new ArrayList<>();
+            if (x != null) {
+                e.getValue().forEach(v -> { if (x.contains(v)) y.add(v); });
+            }
+            returns.put(e.getKey(), y);
+        });
     }
 
     protected void visit(String head, List<Symbol> body) {
@@ -166,6 +175,14 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
             }
             result.put(e.getKey(), s1);
         }
+        return result;
+    }
+
+    protected static Map<String, Set<String>> reverse(Map<String, Set<String>> reachability) {
+        Map<String, Set<String>> result = new HashMap<>();
+        reachability.entrySet()
+                .forEach(e -> e.getValue()
+                        .forEach(v -> result.computeIfAbsent(v, key -> new HashSet<>()).add(e.getKey())));
         return result;
     }
 
