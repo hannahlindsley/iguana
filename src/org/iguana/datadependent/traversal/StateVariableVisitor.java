@@ -96,6 +96,7 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
     public void visit(Grammar grammar, Map<String, Object> variables, Map<String, Set<String>> reachability) {
         this.variables = variables;
         grammar.getRules().forEach(rule -> visit(rule.head(), rule.getBody()));
+        reachability = close(reachability);
         usesIn = close(usesIn, reachability);
         updates = close(updates, reachability);
         usesAfter = close(usesAfter, reverse(reachability));
@@ -103,7 +104,12 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
             Set<String> x = usesAfter.get(e.getKey());
             List<String> y = new ArrayList<>();
             if (x != null) {
-                e.getValue().forEach(v -> { if (x.contains(v)) y.add(v); });
+                e.getValue().forEach(v -> {
+                    if (x.contains(v)) {
+                        y.add(v);
+                        bindings.get(e.getKey()).forEach(l -> l.forEach(s -> s.add(v)));
+                    }
+                });
             }
             returns.put(e.getKey(), y);
         });
@@ -233,6 +239,7 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
     @Override
     public Void visit(Nonterminal symbol) {
         super.visit(symbol);
+        compute(symbol);
         String name = symbol.getName();
         currNonterminals.add(name);
         currUsesAfter.add(new HashSet<>());
@@ -262,6 +269,12 @@ public class StateVariableVisitor extends EnvSymbolVisitor {
             currUsesIn.add(name);
             currUsesAfter.forEach(v -> v.add(name));
         }
+    }
+
+    protected void compute(Nonterminal symbol) {}
+
+    protected Map<String, Set<String>> close(Map<String, Set<String>> reachability) {
+        return reachability;
     }
 
 }
