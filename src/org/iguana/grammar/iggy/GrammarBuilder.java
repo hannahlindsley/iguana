@@ -48,10 +48,11 @@ import java.util.stream.Collectors;
 public class GrammarBuilder implements TermTraversal.Actions {
 
     public static class Identifier {
-        public final String id;
-        public Identifier(String id) {
-            this.id = id;
-        }
+        
+    	public final String id;
+        
+        public Identifier(String id) { this.id = id; }
+        
         public static Identifier ident(String name) { return new Identifier(name); }
     }
 
@@ -59,7 +60,7 @@ public class GrammarBuilder implements TermTraversal.Actions {
 	
 	public static class Rule {
 		public static List<org.iguana.grammar.symbol.Rule> syntax(List<String> tag, Identifier name, List<Identifier> parameters, List<Alternates> body) {
-            List<org.iguana.grammar.symbol.Rule> rules = new ArrayList<>();
+			List<org.iguana.grammar.symbol.Rule> rules = new ArrayList<>();
             PrecedenceLevel level = PrecedenceLevel.getFirst();
             Nonterminal head = Nonterminal.withName(name.id);
             if (!parameters.isEmpty())
