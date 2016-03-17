@@ -250,9 +250,9 @@ class GenerateJFlex implements RegularExpressionVisitor<String> {
 
     @Override
     public <E extends RegularExpression> String visit(iguana.regex.Alt<E> symbol) {
-        Map<Boolean, List<E>> parition = symbol.getSymbols().stream().collect(Collectors.partitioningBy(s -> isCharClass(s)));
-        List<E> charClasses = parition.get(true);
-        List<E> other = parition.get(false);
+        Map<Boolean, List<E>> partition = symbol.getSymbols().stream().collect(Collectors.partitioningBy(s -> isCharClass(s)));
+        List<E> charClasses = partition.get(true);
+        List<E> other = partition.get(false);
 
         StringBuilder sb = new StringBuilder();
 

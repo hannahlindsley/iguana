@@ -49,19 +49,23 @@ public class GenerateElements {
 
     enum NUM { ONE, MORE_THAN_ONE, ONE_AND_MORE }
 
+    /*
+     * - Computes mapping from the name of a nonterminal to a set of labels; if a rule does not have a label, adds "Impl";
+     * - Generates element types, using names of nonterminals and their labels; plus element types for EBNF constructs,
+     *   including data-dependent counterparts
+     * - Computes mapping from the name of a nonterminal to a map from a label to a set of nonterminals, used in the
+     *   rule(s) corresponding to the label, along with the number of their occurrence in the rule(s)
+     * - A new type of a psi element is defined for each nonterminal with corresponding methods to access children
+     *  (only nonterminals) of a specific type
+     */
     public static void generate(List<Rule> rules, String language, String path) {
         Map<String, Set<String>> elements = new LinkedHashMap<>();
-        for (Rule rule : rules) {
-
-            if (rule.getHead().getName().equals("$default$")) continue;
-
-            Set<String> labels = elements.get(rule.getHead().getName());
-            if (labels == null) {
-                labels = new HashSet<>();
-                elements.put(rule.getHead().getName(), labels);
-            }
-            labels.add(rule.getLabel() == null ? "Impl" : rule.getLabel());
-        }
+        rules.forEach(rule -> {
+            String head = rule.head();
+            String label = rule.label();
+            if (!head.equals("$default$"))
+                elements.computeIfAbsent(head, key -> new HashSet<>()).add(label == null ? "Impl" : label);
+        });
         generateElementTypes(elements, language, path);
         generatePhiElements(rules, language, path);
     }
@@ -82,20 +86,19 @@ public class GenerateElements {
             writer.println();
             writer.println("public interface " + language + "ElementTypes {");
             writer.println();
-            // ebnf related types, also data-dependent
             writer.println("    public IElementType LIST = new " + language + "ElementType(\"LIST\");"); // * and while
             writer.println("    public IElementType OPT = new " + language + "ElementType(\"OPT\");");   // ? and if-then
             writer.println("    public IElementType ALT = new " + language + "ElementType(\"ALT\");");   // | and if-then-else
             writer.println("    public IElementType SEQ = new " + language + "ElementType(\"SEQ\");");   // () and {}
             writer.println();
-            for (String head : elements.keySet()) {
-                for (String label : elements.get(head)) {
+            elements.keySet().forEach(head ->
+                elements.get(head).forEach(label -> {
                     if (label.equals("Impl"))
                         writer.println("    public IElementType " + head.toUpperCase() + " = new " + language + "ElementType(\"" + head.toUpperCase() + "\");");
                     else
                         writer.println("    public IElementType " + head.toUpperCase() + "_" + label.toUpperCase() + " = new " + language + "ElementType(\"" + head.toUpperCase() + "_" + label.toUpperCase() + "\");");
-                }
-            }
+                })
+            );
             writer.println();
             writer.println("    public static IElementType get(String name) {");
             writer.println("        switch (name) {");
@@ -103,14 +106,15 @@ public class GenerateElements {
             writer.println("            case \"OPT\": return OPT;");
             writer.println("            case \"ALT\": return ALT;");
             writer.println("            case \"SEQ\": return SEQ;");
-            for (String head : elements.keySet()) {
-                for (String label : elements.get(head)) {
+            elements.keySet().forEach(head ->
+                elements.get(head).forEach(label -> {
                     if (label.equals("Impl"))
                         writer.println("            case \"" + head.toUpperCase() + "\": return " + head.toUpperCase() + ";");
                     else
                         writer.println("            case \"" + head.toUpperCase() + "_" + label.toUpperCase() + "\": return " + head.toUpperCase() + "_" + label.toUpperCase() + ";");
-                }
-            }
+
+                })
+            );
             writer.println("        }");
             writer.println("        throw new RuntimeException(\"Should not have happened!\");");
             writer.println("    }");
@@ -119,14 +123,14 @@ public class GenerateElements {
             writer.println("        public static PsiElement createElement(ASTNode node) {");
             writer.println("            IElementType type = node.getElementType();");
             writer.println("            if (type == LIST || type == OPT || type == ALT || type == SEQ) return new EbnfElementImpl(node);");
-            for (String head : elements.keySet()) {
-                for (String label : elements.get(head)) {
+            elements.keySet().forEach(head ->
+                elements.get(head).forEach(label -> {
                     if (label.equals("Impl"))
                         writer.println("            if (type == " + head.toUpperCase() + ") return new " + head + "Impl(node);");
                     else
                         writer.println("            if (type == " + head.toUpperCase() + "_" + label.toUpperCase() + ") return new " + head + label + "Impl(node);");
-                }
-            }
+                })
+            );
             writer.println("            throw new RuntimeException(\"Should not have happened!\");");
             writer.println("        }");
             writer.println("    }");
@@ -141,50 +145,38 @@ public class GenerateElements {
 
     private static void generatePhiElements(List<Rule> rules, String language, String path) {
         new File(path + language.toLowerCase() + "/gen/psi/impl").mkdir();
-        // Symbol names with their occurrence counter; per nonterminal and per label of a rule
-        Map<String, Map<String, Map<String, NUM>>> elements = new LinkedHashMap<>();
+        Map<String, Map<String, Map<String, NUM>>> occur = new LinkedHashMap<>();
 
         for (Rule rule : rules) {
 
-            if (rule.getHead().getName().equals("$default$")) continue;
+            String head = rule.head();
+            String label = (rule.label() == null || rule.label().isEmpty()) ? "Impl" : rule.label();
 
-            Map<String, Map<String, NUM>> m1 = elements.get(rule.getHead().getName());
-            if (m1 == null) {
-                m1 = new LinkedHashMap<>();
-                elements.put(rule.getHead().getName(), m1);
-            }
+            if (head.equals("$default$")) continue;
 
-            String label = rule.getLabel();
-            if (label == null || label.isEmpty()) label = "Impl";
+            Map<String, Map<String, NUM>> labels = occur.computeIfAbsent(head, key -> new LinkedHashMap<>());
+            Map<String, NUM> x = new LinkedHashMap<>();
+            new GetPhiElements(rule, x).compute(language, path);
+            Map<String, NUM> uses = labels.computeIfAbsent(label, key -> x);
 
-            Map<String, NUM> m2 = m1.get(label);
+            if (uses == x) continue;
 
-            Map<String, NUM> m3 = new LinkedHashMap<>();
-            new GetPhiElements(rule, m3).compute(language, path);
-
-            if (m2 == null) {
-                m1.put(label, m3);
-                continue;
-            }
-
-            for (Map.Entry<String, NUM> entry : m3.entrySet()) {
-                NUM num = m2.get(entry.getKey());
-                if (num == null)
-                    m2.put(entry.getKey(), entry.getValue());
+            x.entrySet().forEach(e -> {
+                String k = e.getKey();
+                NUM v = e.getValue();
+                NUM n = uses.get(k);
+                if (n == null)
+                    uses.put(k, v);
                 else
-                    switch (num) {
-                        case ONE:
-                            if (entry.getValue() != NUM.ONE)
-                                num = entry.getValue();
-                            break;
-                        case MORE_THAN_ONE:
-                            break;
+                    switch (n) {
+                        case ONE: if (v != NUM.ONE) n = v; break;
+                        case MORE_THAN_ONE: break;
                         case ONE_AND_MORE: throw new RuntimeException("Should not happen!");
                     }
-            }
+            });
         }
 
-        GetPhiElements.generate(elements, language, path);
+        GetPhiElements.generate(occur, language, path);
     }
 
     private static class GetPhiElements implements ISymbolVisitor<String> {
@@ -690,6 +682,9 @@ public class GenerateElements {
 
     private static class InferPsiEbnfElementType implements ISymbolVisitor<String> {
 
+        public static final String GENERAL_TYPE = "PsiElement";
+        public static final String TERMINAL_TYPE = "Terminal";
+
         @Override
         public String visit(Align symbol) {
             return symbol.getSymbol().accept(this);
@@ -700,10 +695,12 @@ public class GenerateElements {
             String type = null;
             for (Symbol sym : symbol.getSymbols()) {
                 String curr = sym.accept(this);
+                if (type == null && curr != null) {
+                    type = curr;
+                    continue;
+                }
                 if (type != null && curr != null && !type.equals(curr))
                     return "PsiElement";
-                else if (type == null && curr != null)
-                    type = curr;
             }
             return type;
         }
@@ -753,7 +750,7 @@ public class GenerateElements {
 
         @Override
         public String visit(Terminal symbol) {
-            return null;
+            return TERMINAL_TYPE;
         }
 
         @Override
@@ -787,8 +784,7 @@ public class GenerateElements {
         @Override
         public String visit(Plus symbol) {
             for (Symbol sep : symbol.getSeparators())
-                if (sep.accept(this) != null)
-                    return "PsiElement";
+                if (sep.accept(this) != TERMINAL_TYPE) return "PsiElement";
             return symbol.getSymbol().accept(this);
         }
 
@@ -797,10 +793,10 @@ public class GenerateElements {
             String type = null;
             for (Symbol sym : symbol.getSymbols()) {
                 String res = sym.accept(this);
-                if (type != null && res != null && !type.equals(res))
-                    return "PsiElement";
-                else if (type == null && res != null)
+                if (type == null && res != null)
                     type = res;
+                else if (type != null && res != null && !type.equals(res))
+                    return "PsiElement";
             }
             return type;
         }

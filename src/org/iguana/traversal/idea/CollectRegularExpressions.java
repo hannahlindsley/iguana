@@ -39,7 +39,7 @@ import java.util.Map;
  */
 
 /*
- * Collects regular expressions by type: named, keywords, the rest.
+ * Collects regular expressions by type: named (inline regex), keywords, strings and chars.
  */
 public class CollectRegularExpressions implements ISymbolVisitor<Void> {
 
@@ -111,9 +111,9 @@ public class CollectRegularExpressions implements ISymbolVisitor<Void> {
     public Void visit(Terminal symbol) {
         RegularExpression regex = symbol.getRegularExpression();
 
-        if (symbol.category() == Terminal.Category.REGEX) {
+        if (symbol.category() == Terminal.Category.REGEX)
             terminals.put("|regex|:" + symbol.getName(), regex);
-        } else if (symbol.category() == Terminal.Category.KEYWORD)
+        else if (symbol.category() == Terminal.Category.KEYWORD)
             terminals.put("|keyword|:" + symbol.getName(), regex);
         else
             terminals.put(symbol.getName(), regex);

@@ -38,6 +38,10 @@ import java.util.*;
 
 public class IdeaIDEGenerator {
 
+    /*
+     * A PsiElement is introduced for each nonterminal
+     * Inlining driven by presence of labels can be (not so far) considered
+     */
     public void generate(Grammar grammar, String language, String extension, String path) {
 
         path = path.endsWith("/")? path : path + "/";
