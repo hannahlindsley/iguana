@@ -28,6 +28,7 @@ libraryDependencies ++= Seq(
 
 
 javacOptions in (Compile, doc) ++= Seq("-source", "1.8")
+
 javacOptions in (Compile,doc) += "-Xdoclint:none"
 
 compileOrder in Compile := CompileOrder.Mixed
